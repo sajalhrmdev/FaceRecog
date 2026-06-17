@@ -41,9 +41,46 @@ def health():
 #         "embedding": faces[0].embedding.tolist()
 #     }
 
+# @app.post("/embedding")
+# async def embedding(file: UploadFile = File(...)):
+#     try:
+#         image = Image.open(file.file).convert("RGB")
+#         image = np.array(image)
+
+#         faces = face_app.get(image)
+
+#         if not faces:
+#             return {
+#                 "success": False,
+#                 "message": "No face detected"
+#             }
+
+#         return {
+#             "success": True,
+#             "embedding": faces[0].embedding.tolist()
+#         }
+
+#     except Exception:
+#         return {
+#             "success": False,
+#             "message": "Invalid image file"
+#         }
+
+
+face_app = None
+
 @app.post("/embedding")
 async def embedding(file: UploadFile = File(...)):
+    global face_app
+
     try:
+        if face_app is None:
+            face_app = insightface.app.FaceAnalysis(
+                name="buffalo_s",
+                providers=["CPUExecutionProvider"]
+            )
+            face_app.prepare(ctx_id=-1)
+
         image = Image.open(file.file).convert("RGB")
         image = np.array(image)
 
