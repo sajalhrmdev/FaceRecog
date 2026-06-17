@@ -14,14 +14,14 @@ app = FastAPI()
 
 # face_app.prepare(ctx_id=-1)
 
-face_app = insightface.app.FaceAnalysis(
-    name="buffalo_s",
-    providers=["CPUExecutionProvider"]
-)
-face_app.prepare(ctx_id=-1)
-@app.get("/health")
-def health():
-    return {"success": True}
+# face_app = insightface.app.FaceAnalysis(
+#     name="buffalo_s",
+#     providers=["CPUExecutionProvider"]
+# )
+# face_app.prepare(ctx_id=-1)
+# @app.get("/health")
+# def health():
+#     return {"success": True}
 
 # @app.post("/embedding")
 # async def embedding(file: UploadFile = File(...)):
