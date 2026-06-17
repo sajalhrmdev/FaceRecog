@@ -6,7 +6,8 @@ import insightface
 app = FastAPI()
 
 face_app = insightface.app.FaceAnalysis()
-face_app.prepare(ctx_id=0)
+# face_app.prepare(ctx_id=0)
+face_app.prepare(ctx_id=-1)
 
 @app.get("/health")
 def health():
