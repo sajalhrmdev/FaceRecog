@@ -1,92 +1,34 @@
+
 from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 import numpy as np
 import insightface
+from routers.chat import router as chat_router
 
 app = FastAPI()
 
-# face_app = insightface.app.FaceAnalysis()
-# face_app.prepare(ctx_id=0)
+# Default model = buffalo_l
+face_app = insightface.app.FaceAnalysis(
+    providers=["CPUExecutionProvider"]
+)
 
-# face_app = insightface.app.FaceAnalysis(
-#     providers=["CPUExecutionProvider"]
-# )
-
-# face_app.prepare(ctx_id=-1)
-
-# face_app = insightface.app.FaceAnalysis(
-#     name="buffalo_s",
-#     providers=["CPUExecutionProvider"]
-# )
-# face_app.prepare(ctx_id=-1)
-# @app.get("/health")
-# def health():
-#     return {"success": True}
-
-# @app.post("/embedding")
-# async def embedding(file: UploadFile = File(...)):
-#     image = Image.open(file.file).convert("RGB")
-#     image = np.array(image)
-
-#     faces = face_app.get(image)
-
-#     if len(faces) == 0:
-#         return {
-#             "success": False,
-#             "message": "No face detected"
-#         }
-
-#     return {
-#         "success": True,
-#         "embedding": faces[0].embedding.tolist()
-#     }
-
-# @app.post("/embedding")
-# async def embedding(file: UploadFile = File(...)):
-#     try:
-#         image = Image.open(file.file).convert("RGB")
-#         image = np.array(image)
-
-#         faces = face_app.get(image)
-
-#         if not faces:
-#             return {
-#                 "success": False,
-#                 "message": "No face detected"
-#             }
-
-#         return {
-#             "success": True,
-#             "embedding": faces[0].embedding.tolist()
-#         }
-
-#     except Exception:
-#         return {
-#             "success": False,
-#             "message": "Invalid image file"
-#         }
+face_app.prepare(ctx_id=-1)
 
 
-face_app = None
+@app.get("/health")
+def health():
+    return {"success": True}
+
 
 @app.post("/embedding")
 async def embedding(file: UploadFile = File(...)):
-    global face_app
-
     try:
-        if face_app is None:
-            face_app = insightface.app.FaceAnalysis(
-                name="buffalo_s",
-                providers=["CPUExecutionProvider"]
-            )
-            face_app.prepare(ctx_id=-1)
-
         image = Image.open(file.file).convert("RGB")
         image = np.array(image)
 
         faces = face_app.get(image)
 
-        if not faces:
+        if len(faces) == 0:
             return {
                 "success": False,
                 "message": "No face detected"
@@ -97,8 +39,18 @@ async def embedding(file: UploadFile = File(...)):
             "embedding": faces[0].embedding.tolist()
         }
 
-    except Exception:
+    except Exception as e:
         return {
             "success": False,
-            "message": "Invalid image file"
+            "message": str(e)
         }
+    
+
+    # ===================================
+  
+
+app.include_router(
+    chat_router,
+    prefix="/chat",
+    tags=["AI Chat"]
+)
